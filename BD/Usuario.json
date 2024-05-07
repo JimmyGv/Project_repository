@@ -1,0 +1,134 @@
+[{
+    "_id": ObjectId('6736758ffc9a6ba0179b43a0'),
+    "nombre":"Jaime Gonzalez Vera",
+    "correo":"tmp_jgonzalez@accitesz.com",
+    "estatus":"A",
+    "contrasena":"Jaime.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d355fbd2191a1a3b531e",
+            "fecha_agregado":2024-05-04T11:51:11.426+00:00
+        }
+    ]
+},{
+    "_id":ObjectId('6836758ffc9a6ba0179b43a0'),
+    "nombre":"Juan Pablo Mendoza Olivares",
+    "correo":"tmp_jolivares@accitesz.com",
+    "estatus":"A",
+    "contrasena":"Juanpa.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d355fbd2191a1a3b531e",
+            "fecha_agregado":2024-05-04T11:56:20.456+00:00
+        }
+    ]
+},{
+    "_id":ObjectId('6936758ffc9a6ba0179b43a0'),
+    "nombre":"Jorge Eduardo Cortes Murillo",
+    "correo":"tmp_jcortes@accitesz.com",
+    "estatus":"A",
+    "contrasena":"Eddy.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d365fbd2191a1a3b531e",
+            "fecha_agregado":2024-05-05T09:11:21.316+00:00
+
+        }
+    ]   
+},{
+    "_id":ObjectId('7036758ffc9a6ba0179b43a0'),
+    "nombre":"Gustavo Adolfo Valades Guerrero",
+    "correo":"tmp_gvalades@accitesz.com",
+    "estatus":"A",
+    "contrasena":"Gustavo.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d365fbd2191a1a3b531e",
+            "fecha_agregado":2024-05-05T09:21:16.536+00:00
+        }
+    ]
+},{
+    "_id":ObjectId('7136758ffc9a6ba0179b43a0'),
+    "nombre":"Enrirque de Jesus Flores Magon",
+    "correo":"tmp_kike@accitesz.com",
+    "estatus":"A",
+    "contrasena":"Kike.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d375fbd2191a1a3b531e"
+            "fecha_agregado":2024-05-04T09:47:43.246+00:00
+        }
+    ]
+},{
+    "_id":ObjectId('7236758ffc9a6ba0179b43a0'),
+    "nombre":"Jesus Alfonso Antonio Ramos",
+    "correo":"tmp_jantonio@accitesz.com",
+    "estatus":"A",
+    "contrasena":"Jesus.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d375fbd2191a1a3b531e",
+            "fecha_agregado":2024-05-05T10:10:21.123+00:00
+        }
+    ]
+},{
+    "_id":ObjectId('7336758ffc9a6ba0179b43a0'),
+    "nombre":"Luis Francisco Carrillo Amezcua",
+    "correo":"tmp_lcarrillo@accitesz.com",
+    "estatus":"A",
+    "contrasena":"Francisco.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d375fbd2191a1a3b531e",
+            "fecha_agregado":2024-05-04T10:33:18.154+00:00
+        }
+    ]
+},{
+    "_id":ObjectId('7436758ffc9a6ba0179b43a0'),
+    "nombre":"Angel David Vazquez Villa",
+    "correo":"tmp_avazquez@accitesz.com",
+    "estatus":"A",
+    "contrasena":"David.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d385fbd2191a1a3b531e"
+            "fecha_agregado":2024-05-04T10:43:31.121+00:00
+        }
+    ]
+},{
+    "_id":ObjectId('7536758ffc9a6ba0179b43a0'),
+    "nombre":"Pavel Axel Santiago Arias",
+    "correo":"tmp_psantiago@accitesz.com",
+    "estatus":"A",
+    "contrasena":"Pavel.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d385fbd2191a1a3b531e",
+            "fecha_agregado":2024-05-04T11:02:23.126+00:00
+        }
+    ]
+},{
+    "_id":ObjectId('7636758ffc9a6ba0179b43a0'),
+    "nombre":"Wendy Cristina Linares Gil",
+    "correo":"tmp_wlinares@accitesz.com",
+    "estatus":"A",
+    "contrasena":"Wendy.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d385fbd2191a1a3b531e",
+            "fecha_agregado":2024-05-05T11:21:56.367+00:00
+        }
+    ]
+},{
+    "_id":ObjectId('7736758ffc9a6ba0179b43a0'),
+    "nombre":"Diego Gonzalez Vera",
+    "correo":"diegogv@gmail.com",
+    "estatus":"A",
+    "contrasena":"Diego.123",
+    "almacen":[
+        {
+            "idPersonaje":"6635d399fbd2191a1a3b531e",
+            "fecha_agregado":2024-05-05T11:51:11.426+00:00
+        }
+    ]
+}]

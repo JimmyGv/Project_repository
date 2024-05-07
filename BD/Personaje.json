@@ -1,0 +1,60 @@
+[{
+    "_id":ObjectId('6635d355fbd2191a1a3b531e'),
+    "nombre":"Mario",
+    "precio":90.12,
+    "imagen":"https://static.wikia.nocookie.net/doblaje/images/2/25/Mario_New_Super_Mario_Bros_U_Deluxe.png/revision/latest?cb=20190208044143&path-prefix=es"
+},
+{
+    "_id":ObjectId('6635d365fbd2191a1a3b531e'),
+    "nombre":"Luigi",
+    "precio":95.60,
+    "imagen":"https://www.shutterstock.com/image-vector/super-mario-friend-luigi-vector-260nw-2349854737.jpg"
+},
+{
+    "_id":ObjectId('6635d375fbd2191a1a3b531e'),
+    "nombre":"Bowser",
+    "precio":160.80,
+    "imagen":"https://i.pinimg.com/550x/7f/ef/cb/7fefcbf3c6f4ae91ec0bb4ca78a7fddb.jpg"
+},
+{
+    "_id":ObjectId('6635d385fbd2191a1a3b531e'),
+    "nombre":"Peach",
+    "precio":170.10,
+    "imagen":"https://i.pinimg.com/564x/b4/4b/3b/b44b3bad9fcf63af9f44b2b8926c8bdd.jpg"
+},
+{
+    "_id":ObjectId('6635d399fbd2191a1a3b531e'),
+    "nombre":"Kirby",
+    "precio":130.30,
+    "imagen":"https://www.latercera.com/resizer/-I1IL_4ct_95mKK4LN3aWS-qtdg=/900x600/smart/arc-anglerfish-arc2-prod-copesa.s3.amazonaws.com/public/6RJJWSD3SNC7FJAQCIKGP37APQ.png"
+},
+{
+    "_id":ObjectId('6635d785fbd2191a1a3b531e'),
+    "nombre":"Crash",
+    "precio":170.10,
+    "imagen":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOXBumg_ecaFxgOocsNfuV0FEn_Wf0OeT0eQnO7kdL&s"
+},
+{
+    "_id":ObjectId('6635d405fbd2191a1a3b531e'),
+    "nombre":"Jack Skeleton",
+    "precio":140.90,
+    "imagen":"https://png.pngtree.com/background/20230528/original/pngtree-jack-skellington-picture-image_2779595.jpg"
+},
+{
+    "_id":ObjectId('6635d615fbd2191a1a3b531e'),
+    "nombre":"Donkey Kong",
+    "precio":110.90,
+    "imagen":"https://www.shutterstock.com/shutterstock/photos/2353856237/display_1500/stock-vector-donkey-kong-monkey-vector-illustration-2353856237.jpg"
+},
+{
+    "_id":ObjectId('6635d425fbd2191a1a3b531e'),
+    "nombre":"Sonic",
+    "precio":100.60,
+    "imagen":"https://i.pinimg.com/550x/ca/d6/62/cad662fd7e54f62d903d7b8c9dfdc5ff.jpg"
+},
+{
+    "_id":ObjectId('6635d435fbd2191a1a3b531e'),
+    "nombre":"Sally",
+    "precio":109.90,
+    "imagen":"https://static.wikia.nocookie.net/disney/images/2/2e/Sally.png/revision/latest?cb=20111106121958&path-prefix=es"
+}]
