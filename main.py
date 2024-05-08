@@ -98,7 +98,7 @@ def finalizar_partida(idPartida:str, idGanador: str):
     salida = app.conn.finalizarPartida(idPartida,idGanador)
     return salida
 
-@app.put('/partida/actualizar/{idPartida}')
+@app.put('/partida/agregarParticipante/{idPartida}')
 def finalizar_partida(idPartida:str, participante: Participantes):
     salida = app.conn.agregarParticipante(idPartida,participante)
     return salida

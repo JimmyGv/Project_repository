@@ -228,7 +228,7 @@ class Connect:
                     break
             if band:
                 #------------------Se comprueba si el total de la compra es igual o mayor al subtotal------------------
-                if compra.total == compra.subtotal or compra.total > compra.subtotal:
+                if compra.total == round(compra.subtotal,2) or compra.total > round(compra.subtotal,2):
                     #------------------Se inserta la compra en la base de datos y se trae el resultado------------------
                     result = self.bd.compra.insert_one(compra.dict())
                     
