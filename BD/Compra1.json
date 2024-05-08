@@ -1,0 +1,126 @@
+[{
+    "_id":{
+        "$oid":"9943858ffc9a6ba0179b43a0"
+    },
+    "numTarjeta":"1234567890123461",
+    "cvc":"128",
+    "anioExpiracion":2026,
+    "mesExpiracion":7,
+    "subtotal":160.80,
+    "total":160.80,
+    "fechaCompra":{
+        "$date":"2024-05-05T10:10:21.123+00:00"
+    },
+    "idUsuario":"7236758ffc9a6ba0179b43a0",
+    "detalleCompra":[
+        {
+            "idPersonaje":"6635d375fbd2191a1a3b531e",
+            "precio":160.80
+        }
+    ]
+},
+{
+    "_id":{
+        "$oid":"9945758ffc9a6ba0179b43a0"
+    },
+    "numTarjeta":"1234567890123462",
+    "cvc":"129",
+    "anioExpiracion":2026,
+    "mesExpiracion":6,
+    "subtotal":160.80,
+    "total":160.80,
+    "fechaCompra":{
+        "$date":"2024-05-05T10:33:18.154+00:00"
+    },
+    "idUsuario":"7336758ffc9a6ba0179b43a0",
+    "detalleCompra":[
+        {
+            "idPersonaje":"6635d375fbd2191a1a3b531e",
+            "precio":160.80
+        }
+    ]
+},
+{
+    "_id":{
+        "$oid":"994758ffc9a6ba0179b43a0"
+    },
+    "numTarjeta":"1234567890123463",
+    "cvc":"130",
+    "anioExpiracion":2026,
+    "mesExpiracion":5,
+    "subtotal":170.10,
+    "total":170.10,
+    "fechaCompra":{
+        "$date":"2024-05-05T10:43:31.121+00:00"
+    },
+    "idUsuario":"7436758ffc9a6ba0179b43a0",
+    "detalleCompra":[
+        {
+            "idPersonaje":"6635d385fbd2191a1a3b531e",
+            "precio":170.10
+        }
+    ]
+},
+{
+    "_id":{
+        "$oid":"9945758ffc9a6baff79b43a0"
+    },
+    "numTarjeta":"1234567890123464",
+    "cvc":"131",
+    "anioExpiracion":2026,
+    "mesExpiracion":4,
+    "subtotal":170.10,
+    "total":170.10,
+    "fechaCompra":{
+        "$date":"2024-05-05T11:02:23.126+00:00"
+    },
+    "idUsuario":"7536758ffc9a6ba0179b43a0",
+    "detalleCompra":[
+        {
+            "idPersonaje":"6635d385fbd2191a1a3b531e",
+            "precio":170.10
+        }
+    ]
+},
+{
+    "_id":{
+        "$oid":"9946758ffc9a6ba0179b43a0"
+    },
+    "numTarjeta":"1234567890123465",
+    "cvc":"132",
+    "anioExpiracion":2026,
+    "mesExpiracion":3,
+    "subtotal":170.10,
+    "total":170.10,
+    "fechaCompra":{
+        "$date":"2024-05-05T11:21:56.367+00:00"
+    },
+    "idUsuario":"7636758ffc9a6ba0179b43a0",
+    "detalleCompra":[
+        {
+            "idPersonaje":"6635d385fbd2191a1a3b531e",
+            "precio":170.10
+        }
+    ]
+},
+{
+    "_id":{
+        "$oid":"99477a8ffc9a6ba0179b43a0"
+    },
+    "numTarjeta":"1234567890123466",
+    "cvc":"133",
+    "anioExpiracion":2026,
+    "mesExpiracion":2,
+    "subtotal":130.30,
+    "total":130.30,
+    "fechaCompra":{
+        "$date":"2024-05-05T11:51:11.426+00:00"
+    },
+    "idUsuario":"7736758ffc9a6ba0179b43a0",
+    "detalleCompra":[
+        {
+            "idPersonaje":"6635d399fbd2191a1a3b531e",
+            "precio":130.30
+        }
+    ]
+}]

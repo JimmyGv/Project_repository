@@ -187,9 +187,10 @@ class Connect:
         #-----------------si es asi recorre el almacen y verifica si existe coincidencia con el idPersonaje-------------------
         #-----------------si existe coincidencia retorna true-----------------------------------------------------------------
         #-----------------si no existe coincidencia retorna false-------------------------------------------------------------
-        if user["almacen"]:
+        if 'almacen' in user:
             for i in user["almacen"]:
-                if i["idPersonaje"] == idPersonaje:
+                
+                if i['idPersonaje'] == idPersonaje:
                     return True
         return False
     def realizarCompra(self,compra:Compra):
@@ -254,7 +255,7 @@ class Connect:
         #------------------Se agrega el personaje al almacen del usuario------------------
         #------------------Se establece una variable que se va a enviar al almacen con los datos de id del personaje y la fecha de agregado--------------------
         state={"idPersonaje":idPersonaje,"fecha_agregado":datetime.today()}
-        self.bd.usuario.update_one({"_id":ObjectId(idUsuario)},{"$push":{"almacen":[state]}})
+        self.bd.usuario.update_one({"_id":ObjectId(idUsuario)},{"$push":{"almacen":state}})
         #pass
     def consultarCompras(self):
         answer= {"Estatus":"" , "Message":""}
@@ -292,7 +293,8 @@ class Connect:
     def consultarCompraById(self,idCompra):
         #answer={"Estatus":"" , "Message":""}
         res=self.bd.compra.find_one({"_id":ObjectId(idCompra)})
-        res["_id"]=str(res["_id"])
+        print(res['_id'])
+        res["_id"]=str(res['_id'])
         user = self.constultaUserById(res["idUsuario"])
         res['usuario']=user["nombre"]
         detail=res["detalleCompra"]
@@ -311,20 +313,17 @@ class Connect:
             #------------------Comprobar si existe el usuario que se desea agregar a la partida------------------------
             if self.comprobarUserById(participant.usuario.idUsuario)>0:
                 if self.comprobarExistenciaById(participant.usuario.idPersonaje)>0:
-                    user= self.bd.usuario.find_one({"_id":ObjectId(participant.usuario.idUsuario)})
-                    almcn=[]
-                    almcn=user['almacen']
-                    for obj in almcn:
+                    if self.existeEnAlmacen(participant.usuario.idUsuario,participant.usuario.idPersonaje):
                         #------------------Comprobar si el personaje existe en el almacen del usuario-----------------------
-                        if obj['idPersonaje']==participant.usuario.idPersonaje:
-                            state={"estatus":"P"}
-                            #-----------------------------Se actualiza el estatus de cada participante para hacerles saber que esta en una partida jugando---------------
-                            self.bd.usuario.update_one({"_id":ObjectId(participant.usuario.idUsuario)},{"$set":state})
-                        else:
-                            flag=False
-                            answer["Estatus"]="Error"
-                            answer["Message"]="El personaje no existe en el almacen del usuario"
-                            break
+                        state={"estatus":"P"}
+                        #-----------------------------Se actualiza el estatus de cada participante para hacerles saber que esta en una partida jugando---------------
+                        self.bd.usuario.update_one({"_id":ObjectId(participant.usuario.idUsuario)},{"$set":state})
+                    else:
+                        flag=False
+                        answer["Estatus"]="Error"
+                        answer["Message"]="El personaje no existe en el almacen del usuario"
+                        break
+                    
                 else:
                     flag=False
                     answer["Estatus"]="Error"

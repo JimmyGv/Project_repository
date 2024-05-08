@@ -1,12 +1,16 @@
 [{
-    "_id":ObjectId('9937758ffc9a6ba0179b43a0'),
+    "_id":{
+        "$oid":"9937758ffc9a6ba0179b43a0"
+    },
     "numTarjeta":"1234567890123456",
     "cvc":"123",
     "anioExpiracion":2025,
     "mesExpiracion":12,
     "subtotal":90.12,
     "total":90.12,
-    "fechaCompra":2024-05-04T11:51:11.426+00:00,
+    "fechaCompra":{
+        "$date":"2024-05-04T11:51:11.426+00:00"
+    },
     "idUsuario":"6736758ffc9a6ba0179b43a0",
     "detalleCompra":[
         {
@@ -16,14 +20,18 @@
     ]
 },
 {
-    "_id":ObjectId('9938758ffc9a6ba0179b43a0'),
+    "_id":{
+        "$oid":"9938758ffc9a6ba0179b43a0"
+    },
     "numTarjeta":"1234567890123457",
     "cvc":"124",
     "anioExpiracion":2026,
     "mesExpiracion":11,
     "subtotal":90.12,
     "total":90.12,
-    "fechaCompra":2024-05-04T11:56:20.456+00:00,
+    "fechaCompra":{
+        "$date":"2024-05-04T11:56:20.456+00:00"
+    },
     "idUsuario":"6836758ffc9a6ba0179b43a0",
     "detalleCompra":[
         {
@@ -33,14 +41,18 @@
     ]
 },
 {
-    "_id":ObjectId('9939758ffc9a6ba0179b43a0'),
+    "_id":{
+        "$oid":"9939758ffc9a6ba0179b43a0"
+    },
     "numTarjeta":"1234567890123458",
     "cvc":"125",
     "anioExpiracion":2026,
     "mesExpiracion":10,
     "subtotal":95.60,
     "total":95.60,
-    "fechaCompra":2024-05-05T09:11:21.316+00:00,
+    "fechaCompra":{
+        "$date":"2024-05-05T09:11:21.316+00:00"
+    },
     "idUsuario":"6936758ffc9a6ba0179b43a0",
     "detalleCompra":[
         {
@@ -50,14 +62,17 @@
     ]
 },
 {
-    "_id":ObjectId('9940758ffc9a6ba0179b43a0'),
+    "_id":{
+        "$oid":"9940758ffc9a6ba0179b43a0"
+    },
     "numTarjeta":"1234567890123459",
     "cvc":"126",
     "anioExpiracion":2026,
-    "mesExpiracion":09,
+    "mesExpiracion":9,
     "subtotal":95.60,
     "total":95.60,
-    "fechaCompra":2024-05-05T09:21:16.536+00:00,
+    "fechaCompra":{
+        "$date":"2024-05-05T09:21:16.536+00:00"},
     "idUsuario":"7036758ffc9a6ba0179b43a0",
     "detalleCompra":[
         {
@@ -67,121 +82,23 @@
     ]
 },
 {
-    "_id":ObjectId('9941758ffc9a6ba0179b43a0'),
+    "_id":{
+        "$oid":"9941758ffc9a6ba0179b43a0"
+    },
     "numTarjeta":"1234567890123460",
     "cvc":"127",
     "anioExpiracion":2026,
-    "mesExpiracion":08,
+    "mesExpiracion":8,
     "subtotal":160.80,
     "total":160.80,
-    "fechaCompra":2024-05-04T09:47:43.246+00:00,
+    "fechaCompra":{
+        "$date":"2024-05-04T09:47:43.246+00:00"
+    },
     "idUsuario":"7136758ffc9a6ba0179b43a0",
     "detalleCompra":[
         {
             "idPersonaje":"6635d375fbd2191a1a3b531e",
             "precio":160.80
-        }
-    ]
-},
-{
-    "_id":ObjectId('9942758ffc9a6ba0179b43a0'),
-    "numTarjeta":"1234567890123461",
-    "cvc":"128",
-    "anioExpiracion":2026,
-    "mesExpiracion":07,
-    "subtotal":160.80,
-    "total":160.80,
-    "fechaCompra":2024-05-05T10:10:21.123+00:00,
-    "idUsuario":"7236758ffc9a6ba0179b43a0",
-    "detalleCompra":[
-        {
-            "idPersonaje":"6635d375fbd2191a1a3b531e",
-            "precio":160.80
-        }
-    ]
-},
-{
-    "_id":ObjectId('9943758ffc9a6ba0179b43a0'),
-    "numTarjeta":"1234567890123462",
-    "cvc":"129",
-    "anioExpiracion":2026,
-    "mesExpiracion":06,
-    "subtotal":160.80,
-    "total":160.80,
-    "fechaCompra":2024-05-05T10:33:18.154+00:00,
-    "idUsuario":"7336758ffc9a6ba0179b43a0",
-    "detalleCompra":[
-        {
-            "idPersonaje":"6635d375fbd2191a1a3b531e",
-            "precio":160.80
-        }
-    ]
-},
-{
-    "_id":ObjectId('9944758ffc9a6ba0179b43a0'),
-    "numTarjeta":"1234567890123463",
-    "cvc":"130",
-    "anioExpiracion":2026,
-    "mesExpiracion":05,
-    "subtotal":170.10,
-    "total":170.10,
-    "fechaCompra":2024-05-05T10:43:31.121+00:00,
-    "idUsuario":"7436758ffc9a6ba0179b43a0",
-    "detalleCompra":[
-        {
-            "idPersonaje":"6635d385fbd2191a1a3b531e",
-            "precio":170.10
-        }
-    ]
-},
-{
-    "_id":ObjectId('9945758ffc9a6ba0179b43a0'),
-    "numTarjeta":"1234567890123464",
-    "cvc":"131",
-    "anioExpiracion":2026,
-    "mesExpiracion":04,
-    "subtotal":170.10,
-    "total":170.10,
-    "fechaCompra":2024-05-05T11:02:23.126+00:00,
-    "idUsuario":"7536758ffc9a6ba0179b43a0",
-    "detalleCompra":[
-        {
-            "idPersonaje":"6635d385fbd2191a1a3b531e",
-            "precio":170.10
-        }
-    ]
-},
-{
-    "_id":ObjectId('9946758ffc9a6ba0179b43a0'),
-    "numTarjeta":"1234567890123465",
-    "cvc":"132",
-    "anioExpiracion":2026,
-    "mesExpiracion":03,
-    "subtotal":170.10,
-    "total":170.10,
-    "fechaCompra":2024-05-05T11:21:56.367+00:00,
-    "idUsuario":"7636758ffc9a6ba0179b43a0",
-    "detalleCompra":[
-        {
-            "idPersonaje":"6635d385fbd2191a1a3b531e",
-            "precio":170.10
-        }
-    ]
-},
-{
-    "_id":ObjectId('9947758ffc9a6ba0179b43a0'),
-    "numTarjeta":"1234567890123466",
-    "cvc":"133",
-    "anioExpiracion":2026,
-    "mesExpiracion":02,
-    "subtotal":130.30,
-    "total":130.30,
-    "fechaCompra":2024-05-05T11:51:11.426+00:00,
-    "idUsuario":"7736758ffc9a6ba0179b43a0",
-    "detalleCompra":[
-        {
-            "idPersonaje":"6635d399fbd2191a1a3b531e",
-            "precio":130.30
         }
     ]
 }]
