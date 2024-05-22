@@ -46,7 +46,7 @@ class PersonajeInsertar (BaseModel):
     estatus:str=Field(default="A")
 class PersonajeActualizar (BaseModel):
     nombre:str
-    precio: float
+    precio: float=Field(...,ge=0)
     imagen:str
 
 

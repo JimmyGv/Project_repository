@@ -29,6 +29,10 @@ class Connect:
         return count
     def actualizarUser(self, idUser ,nombre, contrasena):
         answer= {"Estatus":"" , "Message":""}
+        if len(idUser) != 24:
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido"
+            return answer
         #------------------comprobar si el usuario existe-----------------------
         if self.comprobarUserById(idUser)>0:
             #------------------Crear una variable con un nuevo estatus-----------------------
@@ -60,11 +64,15 @@ class Connect:
         if (nombre_usuario != ''):
             #------------------Obtener el usuario-----------------------
             usuario = self.bd.usuario.find_one({"correo":correo,"contrasena":contrasena},projection={"nombre":True,"correo":True,"estatus":True,"_id":False})
-            answer["Estatus"]= "OK"
-            answer["Message"]="Usuario encontrado"
-            #------------------Se puede agregar mas datos al diccionario no importa la cantidad o si son objetos, solo cambia cuando es una lista de objetos-----------------------
-            answer["nombre_usuario"] = "Bienvenido: " + str(nombre_usuario)
-            answer["Usuario"]=usuario
+            if usuario['estatus']=="I":
+                answer["Estatus"]="Error"
+                answer["Message"]="El usuario esta inactivo"
+            else:
+                answer["Estatus"]= "OK"
+                answer["Message"]="Usuario encontrado"
+                #------------------Se puede agregar mas datos al diccionario no importa la cantidad o si son objetos, solo cambia cuando es una lista de objetos-----------------------
+                answer["nombre_usuario"] = "Bienvenido: " + str(nombre_usuario['nombre'])
+                answer["Usuario"]=usuario
         else:
             answer["Estatus"]= "Error"
             answer["Message"]="Usuario no encontrado"
@@ -83,12 +91,21 @@ class Connect:
     def eliminarUser(self, idUser):
         answer= {"Estatus":"" , "Message":""}
         #------------------Se comprueba si el usuario existe con el metodo o funcion de comprobarUserById----------------------
+        if len(idUser) != 24:
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido"
+            return answer
         if self.comprobarUserById( ObjectId(idUser))>0:
-            state = {"estatus":"I"}
-            #------------------Se actualiza el estado del usuario con el metodo update_one----------------------
-            self.bd.usuario.update_one({"_id":ObjectId(idUser)},{"$set":state})
-            answer["Estatus"]="OK"
-            answer["Message"]="Usuario eliminado exitosamente"
+            us = self.constultaUserById(idUser)
+            if us['estatus']=="I":
+                answer["Estatus"]="Error"
+                answer["Message"]="El usuario no puede ser eliminado ya que esta inactivo"
+            else:
+                state = {"estatus":"I"}
+                #------------------Se actualiza el estado del usuario con el metodo update_one----------------------
+                self.bd.usuario.update_one({"_id":ObjectId(idUser)},{"$set":state})
+                answer["Estatus"]="OK"
+                answer["Message"]="Usuario eliminado exitosamente"
         else:
             answer["Estatus"]= "Error"
             answer["Message"]="El Usuario que se intenta eliminar no existe"
@@ -110,10 +127,16 @@ class Connect:
         answer["Usuarios"]=listilla
         return answer
     def constultaUserById(self, idUser):
-        #------------------Se utiliza el metodo find_one para obtener un documento que cumpla con la condicion----------------------
-        #------------------En este caso se obtiene el documento que tiene el id que se le pasa como parametro-----------------------
-        user=self.bd.usuario.find_one({"_id":ObjectId(idUser)},projection={"nombre":True,"correo":True,"estatus":True,"_id":False})
-        return user
+        answer={"Estatus":"","Message":""}
+        if len(idUser) != 24:
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido"
+            return answer
+        else:
+            #------------------Se utiliza el metodo find_one para obtener un documento que cumpla con la condicion----------------------
+            #------------------En este caso se obtiene el documento que tiene el id que se le pasa como parametro-----------------------
+            user=self.bd.usuario.find_one({"_id":ObjectId(idUser)},projection={"nombre":True,"correo":True,"estatus":True,"_id":False})
+            return user
     def crearPersonaje(self,personaje:PersonajeInsertar):
         answer= {"Estatus":"" , "Message":""} 
         if self.comprobarExistencia(personaje.nombre)>0:
@@ -137,21 +160,37 @@ class Connect:
         return count
     def actualizarPersonaje(self, idPersonaje, personaje:PersonajeActualizar):
         answer= {"Estatus":"" , "Message":""}
+        if len(idPersonaje) != 24:
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido"
+            return answer
         if self.comprobarExistenciaById(idPersonaje)>0:
-            #------------------Se utiliza el metodo update_one para actualizar un documento en la coleccion----------------------
-            #------------------En este caso se actualiza el personaje que se le pasa como parametro------------------------
-            #------------------Se utiliza el metodo dict para convertir el objeto en un diccionario digerible para mongo----------------------
-            self.bd.personaje.update_one({"_id":ObjectId(idPersonaje)},{"$set":personaje.dict()})
-            resul=self.bd.personaje.find_one({"_id":ObjectId(idPersonaje)},projection={"_id":False})
-            answer["Estatus"]="OK"
-            answer["Message"]="El personaje se ha modificado correctamente"
-            answer['Personaje']=resul
+            prnj = self.consultarPersonajeById(idPersonaje)
+
+            #--------------------comprueba si el nombre al de la base de datos---------------- 
+            if prnj['nombre'] != personaje.nombre:
+                answer["Estatus"]="Error"
+                answer["Message"]="No puedes actualizar el nombre del personaje"
+            else:
+
+                #------------------Se utiliza el metodo update_one para actualizar un documento en la coleccion----------------------
+                #------------------En este caso se actualiza el personaje que se le pasa como parametro------------------------
+                #------------------Se utiliza el metodo dict para convertir el objeto en un diccionario digerible para mongo----------------------
+                self.bd.personaje.update_one({"_id":ObjectId(idPersonaje)},{"$set":personaje.dict()})
+                resul=self.bd.personaje.find_one({"_id":ObjectId(idPersonaje)},projection={"_id":False})
+                answer["Estatus"]="OK"
+                answer["Message"]="El personaje se ha modificado correctamente"
+                answer['Personaje']=resul
         else:
             answer["Estatus"]="Error"
             answer["Message"]="El personaje que se intenta modificar no existe"
         return answer
     def eliminarPersonaje(self,idPersonaje):
         answer= {"Estatus":"" , "Message":""}
+        if len(idPersonaje) != 24:
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido"
+            return answer
         if self.comprobarExistenciaById(idPersonaje)>0:
             state={"estatus":"I"}
             self.bd.personaje.update_one({"_id":ObjectId(idPersonaje)},{"$set":state})
@@ -171,10 +210,21 @@ class Connect:
         answer["personajes"]=listilla
         return answer
     def consultarPersonajeById(self,idPersonaje):
-        personaje=self.bd.personaje.find_one({"_id":ObjectId(idPersonaje)})
+        if len(idPersonaje) != 24:
+            answer={"Estatus":"" , "Message":""}
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido"
+            return answer
+        if self.comprobarExistenciaById(idPersonaje)>0:
 
-        personaje["_id"]=str(personaje["_id"])
-        return personaje
+            personaje=self.bd.personaje.find_one({"_id":ObjectId(idPersonaje)})
+
+            personaje["_id"]=str(personaje["_id"])
+            return personaje
+        else:
+            answer={"Estatus":"" , "Message":""}
+            answer["Estatus"]="Error"
+            answer["Message"]="El personaje que se intenta consultar no existe"
         #if personaje["estatus"] == "A":
             #personaje["_id"]=str(personaje["_id"])
 
@@ -195,14 +245,28 @@ class Connect:
         return False
     def realizarCompra(self,compra:Compra):
         answer= {"Estatus":"" , "Message":""}
+        if len(compra.idUsuario) != 24 :
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido"
+            return answer
         #-----------------se establece como referencia importante una vaiable de tipo booleano en falso---------------
         band = True
         #------------------Se comprueba si existe el usuario que quiere realizar la compra------------------------
         if self.comprobarUserById(compra.idUsuario)>0:
+            us = self.constultaUserById(compra.idUsuario)
+            if us['estatus'] == "I":
+                answer["Estatus"]="Error"
+                answer["Message"]="El usuario no existe o esta inactivo"
+                return answer
             detail=compra.detalleCompra
             #------------------Se recorre cada elemento que contiene detail-----------------------
             for character in detail:
                 id_personaje = character.idPersonaje
+                if len(id_personaje) != 24 :
+                    answer["Estatus"]="Error"
+                    answer["Message"]="El id del personaje no es valido"
+                    band = False
+                    break
                 #------------------Se comprueba si el personaje existe---------------------------------
                 if self.comprobarExistenciaById(id_personaje)>0:
                     #------------------Se comprueba si el personaje ya existe en el almacen del usuario------------------
@@ -213,6 +277,11 @@ class Connect:
                         break
                     #------------------Se comprueba si el precio del personaje coincide con el precio de la compra------------------
                     personaje=self.consultarPersonajeById(id_personaje)
+                    if personaje['estatus']=="I":
+                        answer["Estatus"]="Error"
+                        answer["Message"]="No puede comprar este personaje ya que esta inactivo"
+                        band=False
+                        break
                     if personaje["precio"]!=character.precio:
                         answer["Estatus"]="Error"
                         answer["Message"]="El precio del personaje no coincide con el precio de la compra"
@@ -292,32 +361,52 @@ class Connect:
         return res
     def consultarCompraById(self,idCompra):
         #answer={"Estatus":"" , "Message":""}
+        if len(idCompra) != 24:
+            return "Error: El id de la compra no es valido, no contiene 24 caracteres"
         res=self.bd.compra.find_one({"_id":ObjectId(idCompra)})
-        print(res['_id'])
-        res["_id"]=str(res['_id'])
-        user = self.constultaUserById(res["idUsuario"])
-        res['usuario']=user["nombre"]
-        detail=res["detalleCompra"]
+        if res:
+            print(res['_id'])
+            res["_id"]=str(res['_id'])
+            user = self.constultaUserById(res["idUsuario"])
+            res['usuario']=user["nombre"]
+            detail=res["detalleCompra"]
 
-        for obj in detail:
-            #-----------------Se consulta el usuario con el metodo de consultarNombrePersonaje-------------------
-            nmb = self.consultarNombrePersonaje(obj["idPersonaje"])
-            obj["nombrePersonaje"]=nmb['nombre']
-        return res
+            for obj in detail:
+                #-----------------Se consulta el usuario con el metodo de consultarNombrePersonaje-------------------
+                nmb = self.consultarNombrePersonaje(obj["idPersonaje"])
+                obj["nombrePersonaje"]=nmb['nombre']
+            return res
+        else:
+            return "Error: No se encontro la compra"
     def crearPartida(self,partida:Partida):
         answer={"Estatus":"" , "Message":""}
         #print(partida)
+        contador = 0
         participantes=partida.participantes
         flag=True
         for participant in participantes:
+            if len(participant.usuario.idUsuario) != 24:
+                flag=False
+                answer["Estatus"]="Error"
+                answer["Message"]="El id del usuario no es valido"
+                break
+            if len(participant.usuario.idPersonaje) != 24:
+                flag=False
+                answer["Estatus"]="Error"
+                answer["Message"]="El id del personaje no es valido"
+                break
             #------------------Comprobar si existe el usuario que se desea agregar a la partida------------------------
             if self.comprobarUserById(participant.usuario.idUsuario)>0:
+                us = self.constultaUserById(participant.usuario.idUsuario)
+                if us["estatus"] == "I":
+                    flag=False
+                    answer["Estatus"]="Error"
+                    answer["Message"]="El usuario "+us["nombre"]+" esta inactivo"
+                    break
                 if self.comprobarExistenciaById(participant.usuario.idPersonaje)>0:
                     if self.existeEnAlmacen(participant.usuario.idUsuario,participant.usuario.idPersonaje):
                         #------------------Comprobar si el personaje existe en el almacen del usuario-----------------------
-                        state={"estatus":"P"}
-                        #-----------------------------Se actualiza el estatus de cada participante para hacerles saber que esta en una partida jugando---------------
-                        self.bd.usuario.update_one({"_id":ObjectId(participant.usuario.idUsuario)},{"$set":state})
+                        contador+=1
                     else:
                         flag=False
                         answer["Estatus"]="Error"
@@ -335,42 +424,85 @@ class Connect:
                 answer["Message"]="El usuario no existe"
                 break
         if flag:
-            #------------------Se inserta una partida en la base de datos------------------
-            self.bd.partida.insert_one(partida.dict())
-            answer["Estatus"]="OK"
-            answer["Message"]="Partida creada"
+            #-----------------------------Se actualiza el estatus de cada participante para hacerles saber que esta en una partida jugando---------------
+            if contador <partida.cupoMinimo :
+                answer["Estatus"]="Error"
+                answer["Message"]="No se han agregado los participantes necesarios para crear la partida"
+            else:
+                if contador > partida.cupoMaximo:
+                    answer["Estatus"]="Error"
+                    answer["Message"]="Se han agregado mas participantes de los establecidos"
+                    return answer
+                if  self.verificarParticipantes(participantes) == False:
+
+                    for participant in participantes:
+                        estate={"estatus":"P"}
+                        self.bd.usuario.update_one({"_id":ObjectId(participant.usuario.idUsuario)},{"$set":estate})
+                    #------------------Se inserta una partida en la base de datos------------------
+                    self.bd.partida.insert_one(partida.dict())
+                    answer["Estatus"]="OK"
+                    answer["Message"]="Partida creada"
+                else:
+                    answer["Estatus"]="Error"
+                    answer["Message"]="No se pueden agregar dos usuarios iguales a la misma partida"
         return answer
+    
+    def verificarParticipantes(self,ticipants):
+        ids_usuario = set()
+        
+        for participte in ticipants:
+            #print (participte.usuario.idUsuario)
+            id_usuario = participte.usuario.idUsuario
+
+            if id_usuario in ids_usuario:
+                return True
+
+            ids_usuario.add(id_usuario)
+        return False
     def encontrarPartida(self,idPartida):
         count=self.bd.partida.count_documents({"_id":ObjectId(idPartida)})
         return count
     def finalizarPartida(self, idPartida, idUsuarioGanador):
         answer={"Estatus":"" , "Message":""}
+        if len(idPartida) != 24:
+            answer["Estatus"]="Error"
+            answer["Message"]="El id de la partida no es valido"
+            return answer
+        if len(idUsuarioGanador) != 24:
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario ganador no es valido"
+            return answer
+        #------------------Comprobar si la partida existe------------------------
         if self.encontrarPartida(idPartida)>0:
             if self.comprobarUserById(idUsuarioGanador)>0:
                 part=self.bd.partida.find_one({"_id":ObjectId(idPartida)})
+                
+                if part['estatus'] == "T":
+                    answer["Estatus"]="Error"
+                    answer["Message"]="La partida ya ha sido finalizada"
+                else:
 
+                    for usuario in part['participantes']:
+                        usuario['estatus']="Played"
+                        newSatate={"estatus":"A"}
+                        obj = usuario['usuario']
+                        self.bd.usuario.update_one({"_id":ObjectId(obj["idUsuario"])},{"$set":newSatate})
+                        obj['idUsuario']=str(obj['idUsuario'])
+                        if obj['idUsuario']== idUsuarioGanador:
+                            usuario['ganador']=True
 
-                for usuario in part['participantes']:
-                    usuario['estatus']="Played"
-                    newSatate={"estatus":"A"}
-                    obj = usuario['usuario']
-                    self.bd.usuario.update_one({"_id":ObjectId(obj["idUsuario"])},{"$set":newSatate})
-                    obj['idUsuario']=str(obj['idUsuario'])
-                    if obj['idUsuario']== idUsuarioGanador:
-                        usuario['ganador']=True
-
-                state={"estatus":"T", "horaFin":datetime.now().time()}
-                hora=datetime.strptime(part['horaInicio'], '%H:%M:%S.%f')
-                state["duracion"]=self.calcularDuracion(state["horaFin"], (hora.time()))
-                state["horaFin"]=str(state['horaFin'])
-                state['fechaTerminacion']= str(date.today())
-                #part['_id']=str(part['_id'])
-                #answer['partida_actulizada']=part
-                #answer['valores a agregar']=state
-                self.bd.partida.update_one({"_id":ObjectId(idPartida)},{"$set":part})
-                self.bd.partida.update_one({"_id":ObjectId(idPartida)},{"$set":state})
-                answer["Estatus"]='OK'
-                answer["Message"]="Partida finalizada con exito"
+                    state={"estatus":"T", "horaFin":datetime.now().time()}
+                    hora=datetime.strptime(part['horaInicio'], '%H:%M:%S.%f')
+                    state["duracion"]=self.calcularDuracion(state["horaFin"], (hora.time()))
+                    state["horaFin"]=str(state['horaFin'])
+                    state['fechaTerminacion']= str(date.today())
+                    #part['_id']=str(part['_id'])
+                    #answer['partida_actulizada']=part
+                    #answer['valores a agregar']=state
+                    self.bd.partida.update_one({"_id":ObjectId(idPartida)},{"$set":part})
+                    self.bd.partida.update_one({"_id":ObjectId(idPartida)},{"$set":state})
+                    answer["Estatus"]='OK'
+                    answer["Message"]="Partida finalizada con exito"
             else:
                 answer["Estatus"]='Error'
                 answer["Message"]="El usuario ganador no existe"
@@ -385,37 +517,73 @@ class Connect:
         return duracion_minutos    
     def agregarParticipante(self, idPartida,participant:Participantes):
         answer={"Estatus":"" , "Message":""}
-        if self.encontrarPartida(idPartida)>0:
-            if self.comprobarUserById(participant.usuario.idUsuario)>0:
-                if self.comprobarExistenciaById(participant.usuario.idPersonaje)>0:
-                    user = self.bd.usuario.find_one({"_id":ObjectId(participant.usuario.idUsuario)})
-                    almacn=[]
-                    almacn=user['almacen']
-                    #print(almacn)
-                    for obj in almacn:
-                        if obj['idPersonaje']==participant.usuario.idPersonaje:
-                            part=self.bd.partida.find_one({"_id":ObjectId(idPartida)})
-                            if part['estatus']=='A':
-                                estate={"estatus":"P"}
-                                self.bd.partida.update_one({"_id":ObjectId(idPartida)},{"$push":{"participantes":participant.dict()}})
-                                self.bd.usuario.update_one({"_id":ObjectId(participant.usuario.idUsuario)},{"$set":estate})
-                                answer["Estatus"]='OK'
-                                answer["Message"]="Participante agregado con exito"
-                            else:
+        contador =0
+        flag =False
+        if len(idPartida) != 24:
+            answer["Estatus"]="Error"
+            answer["Message"]="El id de la partida no es valido"
+        elif len(participant.usuario.idUsuario) !=24:
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido"
+        elif len(participant.usuario.idPersonaje) !=24:
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del personaje no es valido"
+        else:
+            if self.encontrarPartida(idPartida)>0:
+                if self.comprobarUserById(participant.usuario.idUsuario)>0:
+                    if self.comprobarExistenciaById(participant.usuario.idPersonaje)>0:
+                        user = self.bd.usuario.find_one({"_id":ObjectId(participant.usuario.idUsuario)})
+                        if user['estatus'] == "I" or user['estatus']== "P":
+                            answer["Estatus"]="Error"
+                            answer["Message"]="El usuario no esta activo o esta jugando"
+                            return answer
+                        
+                        if not 'almacen' in user:
+                            answer["Estatus"]="Error"
+                            answer["Message"]="El usuario no se puede agregar ya que no tiene un almacen"
+                            return answer
+                        almacn=[]
+                        almacn=user['almacen']
+                        #print(almacn)
+                        for obj in almacn:
+                            if obj['idPersonaje']==participant.usuario.idPersonaje:
+                                part=self.bd.partida.find_one({"_id":ObjectId(idPartida)})
+                                particpants = part['participantes']
+                                
+                                for objson in particpants:
+                                    contador +=1
+                                    if objson['usuario']['idUsuario']==participant.usuario.idUsuario:
+                                        answer["Estatus"]="Error"
+                                        answer['Message']="No puedes agregar a otro usuario identico"
+                                        return answer
+                                if contador == part['cupoMaximo']:
+                                    answer['Estatus']="Error"
+                                    answer['Message']="No puedes agregar mas participantes"
+                                    return answer
+
+                                if part['estatus']=='A':
+                                    estate={"estatus":"P"}
+                                    self.bd.partida.update_one({"_id":ObjectId(idPartida)},{"$push":{"participantes":participant.dict()}})
+                                    self.bd.usuario.update_one({"_id":ObjectId(participant.usuario.idUsuario)},{"$set":estate})
+                                    answer["Estatus"]='OK'
+                                    answer["Message"]="Participante agregado con exito"
+                                    flag=True
+                                    break
+                                else:
+                                    answer["Estatus"]='Error'
+                                    answer["Message"]="La partida no esta activa"
+                            if not flag:
                                 answer["Estatus"]='Error'
-                                answer["Message"]="La partida no esta activa"
-                        else:
-                            answer["Estatus"]='Error'
-                            answer["Message"]="El personaje no esta en el almacen"
+                                answer["Message"]="El personaje no esta en el almacen del usuario"
+                    else:
+                        answer["Estatus"]='Error'
+                        answer["Message"]="El personaje no existe"
                 else:
                     answer["Estatus"]='Error'
-                    answer["Message"]="El personaje no existe"
+                    answer["Message"]="El usuario no existe"
             else:
                 answer["Estatus"]='Error'
-                answer["Message"]="El usuario no existe"
-        else:
-            answer["Estatus"]='Error'
-            answer["Message"]="La partida no existe"
+                answer["Message"]="La partida no existe"
         return answer
     def consultarPartidas(self):
         answer= {"Estatus":"" , "Message":""}
@@ -440,24 +608,28 @@ class Connect:
         return answer
     def consultarPartidaById(self,idPartida):
         answer={"Estatus":"" , "Message":""}
-        if self.encontrarPartida(idPartida)>0:
-            partida=self.bd.partida.find_one({"_id":ObjectId(idPartida)})
-            answer["Estatus"]="OK"
-            answer["Message"]="Partida encontrada"
-            #----------------------------------------
-            partida["_id"]=str(partida['_id'])
-            participant=[]
-            participant=partida['participantes']
-            for obj in participant:
-                obj['usuario']['idPersonaje']=str(obj['usuario']['idPersonaje'])
-                obj['usuario']['idUsuario']=str(obj['usuario']['idUsuario'])
-                user = self.constultaUserById(obj['usuario']['idUsuario'])
-                obj['usuario']['nombreUsuario']= user['nombre']
-                nmb = self.consultarNombrePersonaje(obj['usuario']["idPersonaje"])
-                obj["usuario"]['nombrePersonaje']= nmb['nombre']
-            partida['participantes']=participant
-            answer['Partida']= partida
-        else:
+        if len(idPartida) != 24:
             answer["Estatus"]="Error"
-            answer["Message"]="Partida no encontrada"
+            answer["Message"]="El id de la partida no es valido"
+        else:
+            if self.encontrarPartida(idPartida)>0:
+                partida=self.bd.partida.find_one({"_id":ObjectId(idPartida)})
+                answer["Estatus"]="OK"
+                answer["Message"]="Partida encontrada"
+                #----------------------------------------
+                partida["_id"]=str(partida['_id'])
+                participant=[]
+                participant=partida['participantes']
+                for obj in participant:
+                    obj['usuario']['idPersonaje']=str(obj['usuario']['idPersonaje'])
+                    obj['usuario']['idUsuario']=str(obj['usuario']['idUsuario'])
+                    user = self.constultaUserById(obj['usuario']['idUsuario'])
+                    obj['usuario']['nombreUsuario']= user['nombre']
+                    nmb = self.consultarNombrePersonaje(obj['usuario']["idPersonaje"])
+                    obj["usuario"]['nombrePersonaje']= nmb['nombre']
+                partida['participantes']=participant
+                answer['Partida']= partida
+            else:
+                answer["Estatus"]="Error"
+                answer["Message"]="Partida no encontrada"
         return answer
