@@ -16,9 +16,13 @@ class Connect:
         #------------------comprobar si el usuario ya existe-----------------------
         if self.comprobarUser(usuario.correo) == 0:
             #------------------Insertar el usuario en la base de datos-----------------------
-            self.bd.usuario.insert_one(usuario.dict())
-            answer["Estatus"]="OK"
-            answer["Message"]="Usuario creado exitosamente"
+            try:
+                self.bd.usuario.insert_one(usuario.dict())
+                answer["Estatus"]="OK"
+                answer["Message"]="Usuario creado exitosamente"
+            except Exception as e:
+                answer["Estatus"]="ERROR"
+                answer["Message"]= f"Error al crear el usuario {str(e)}"
         else:
             answer["Estatus"]= "Error"
             answer["Message"]="El Usuario que se intenta crear ya existe"
@@ -31,10 +35,12 @@ class Connect:
         answer= {"Estatus":"" , "Message":""}
         if len(idUser) != 24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id del usuario no es valido"
-            return answer
-        #------------------comprobar si el usuario existe-----------------------
-        if self.comprobarUserById(idUser)>0:
+            answer["Message"]="El id del usuario no es valido, no contiene los 24 caracteres requeridos"
+        elif not self.esHexadecimal(idUser):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido, no es hexadecimal"
+            #------------------comprobar si el usuario existe-----------------------
+        elif self.comprobarUserById(idUser)>0:
             #------------------Crear una variable con un nuevo estatus-----------------------
             state = {"nombre":nombre, "contrasena":contrasena}
             #------------------Actualizar el usuario en la base de datos con su nuevo estatus-----------------------
@@ -61,12 +67,13 @@ class Connect:
         #------------------se utiliza solamente self. y el nombre de la funcion que se quiere realizar seguido de parentesis-----------------------
         #------------------y se le dan los valores que la funcion requiere para poder realizar la funcion-----------------------
         nombre_usuario = self.comprobarLogin(correo,contrasena)
-        if (nombre_usuario != ''):
+        print(nombre_usuario)
+        if (nombre_usuario != None):
             #------------------Obtener el usuario-----------------------
             usuario = self.bd.usuario.find_one({"correo":correo,"contrasena":contrasena},projection={"nombre":True,"correo":True,"estatus":True,"_id":False})
             if usuario['estatus']=="I":
                 answer["Estatus"]="Error"
-                answer["Message"]="El usuario esta inactivo"
+                answer["Message"]="El usuario esta inactivo, pida ayuda a soporte tecnico al correo tmp_jgonzalez@accitesz.com para volver a activar su cuenta"
             else:
                 answer["Estatus"]= "OK"
                 answer["Message"]="Usuario encontrado"
@@ -93,9 +100,11 @@ class Connect:
         #------------------Se comprueba si el usuario existe con el metodo o funcion de comprobarUserById----------------------
         if len(idUser) != 24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id del usuario no es valido"
-            return answer
-        if self.comprobarUserById( ObjectId(idUser))>0:
+            answer["Message"]="El id del usuario no es valido, no contiene los 24 caracteres requeridos"
+        elif not self.esHexadecimal(idUser):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido, no es hexadecimal"
+        elif self.comprobarUserById( ObjectId(idUser))>0:
             us = self.constultaUserById(idUser)
             if us['estatus']=="I":
                 answer["Estatus"]="Error"
@@ -103,9 +112,13 @@ class Connect:
             else:
                 state = {"estatus":"I"}
                 #------------------Se actualiza el estado del usuario con el metodo update_one----------------------
-                self.bd.usuario.update_one({"_id":ObjectId(idUser)},{"$set":state})
-                answer["Estatus"]="OK"
-                answer["Message"]="Usuario eliminado exitosamente"
+                try:
+                    self.bd.usuario.update_one({"_id":ObjectId(idUser)},{"$set":state})
+                    answer["Estatus"]="OK"
+                    answer["Message"]="Usuario eliminado exitosamente"
+                except Exception as e:
+                    answer["Estatus"]="Error"
+                    answer["Message"]= f"Error al eliminar el usuario: {str(e)}"
         else:
             answer["Estatus"]= "Error"
             answer["Message"]="El Usuario que se intenta eliminar no existe"
@@ -114,41 +127,60 @@ class Connect:
         answer={"Estatus":"" , "Message":""}
         #------------------Se utiliza el metodo find para obtener todos los documentos que cumplen con la condicion----------------------
         #------------------En este caso se obtienen los documentos que tienen un estatus de activo-----------------------
-        result=self.bd.consultarUsuarios.find({"estatus":"A"})
-        answer["Estatus"]="OK"
-        answer["Message"]="Usuarios encontrados"
-        listilla=[]
-        #------------------Se recorre el resultado de la consulta y se agregan a una lista----------------------
-        for i in result:
-            #------------------Se realiza este casteo de indices o id debido a que cuando se quieren mostrar los ObjectId tienen problemas para ser mostrados---------------
-            i["ID_Usuario"]=str(i["ID_Usuario"])
-            #con este metodo de append se agrega lo que se haya modificado en el objeto i en este caso el id usuario aparecera como string y no como ObjectId------------------
-            listilla.append(i)
-        answer["Usuarios"]=listilla
+        result=self.bd.consultarUsuarios.find()
+        if result:
+            answer["Estatus"]="OK"
+            answer["Message"]="Usuarios encontrados"
+            listilla=[]
+            #------------------Se recorre el resultado de la consulta y se agregan a una lista----------------------
+            for i in result:
+                #------------------Se realiza este casteo de indices o id debido a que cuando se quieren mostrar los ObjectId tienen problemas para ser mostrados---------------
+                i["ID_Usuario"]=str(i["ID_Usuario"])
+                #con este metodo de append se agrega lo que se haya modificado en el objeto i en este caso el id usuario aparecera como string y no como ObjectId------------------
+                listilla.append(i)
+            answer["Usuarios"]=listilla
+        else:
+            answer["Estatus"]="Error"
+            answer["Message"]="No se encontraron usuarios"
         return answer
     def constultaUserById(self, idUser):
         answer={"Estatus":"","Message":""}
         if len(idUser) != 24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id del usuario no es valido"
+            answer["Message"]="El id del usuario no es valido, no contiene los 24 caracteres requeridos"
             return answer
-        else:
+        if not self.esHexadecimal(idUser):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido, no es hexadecimal"
+            return answer
+        if self.comprobarUserById( ObjectId(idUser))>0:
             #------------------Se utiliza el metodo find_one para obtener un documento que cumpla con la condicion----------------------
             #------------------En este caso se obtiene el documento que tiene el id que se le pasa como parametro-----------------------
             user=self.bd.usuario.find_one({"_id":ObjectId(idUser)},projection={"nombre":True,"correo":True,"estatus":True,"_id":False})
             return user
+        else:
+            answer["Estatus"]="Error"
+            answer["Message"]="El Usuario que se intenta consultar no existe"
+            return answer
     def crearPersonaje(self,personaje:PersonajeInsertar):
         answer= {"Estatus":"" , "Message":""} 
         if self.comprobarExistencia(personaje.nombre)>0:
             answer["Estatus"]="Error"
             answer["Message"]="Un personaje con este nombre ya existe"
+        elif personaje.precio <0:
+            answer["Estatus"]="Error"
+            answer["Message"]="El precio del personaje no puede ser negativo"
         else:
             #------------------Se utiliza el metodo insert_one para insertar un documento en la coleccion----------------------
             #------------------En este caso se inserta el personaje que se le pasa como parametro------------------------
             #------------------Se utiliza el metodo dict para convertir el objeto en un diccionario digerible para mongo----------------------
-            self.bd.personaje.insert_one(personaje.dict())
-            answer["Estatus"]="OK"
-            answer["Message"]="Personaje creado exitosamente"
+            try:
+                self.bd.personaje.insert_one(personaje.dict())
+                answer["Estatus"]="OK"
+                answer["Message"]="Personaje creado exitosamente"
+            except Exception as e:
+                answer["Estatus"]="Error"
+                answer["Message"]= f"Error al crear el personaje: {str(e)}"
         return answer
     def comprobarExistencia(self,nombre):
         #------------------Se utiliza el metodo count_documents para contar la cantidad de documentos que cumplen con la condicion----------------------
@@ -162,9 +194,11 @@ class Connect:
         answer= {"Estatus":"" , "Message":""}
         if len(idPersonaje) != 24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id del usuario no es valido"
-            return answer
-        if self.comprobarExistenciaById(idPersonaje)>0:
+            answer["Message"]="El id del personaje no es valido, no contiene los 24 caracteres requeridos"
+        elif not self.esHexadecimal(idPersonaje):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del personaje no es valido, no es hexadecimal la cadena"
+        elif self.comprobarExistenciaById(idPersonaje)>0:
             prnj = self.consultarPersonajeById(idPersonaje)
 
             #--------------------comprueba si el nombre al de la base de datos---------------- 
@@ -176,11 +210,17 @@ class Connect:
                 #------------------Se utiliza el metodo update_one para actualizar un documento en la coleccion----------------------
                 #------------------En este caso se actualiza el personaje que se le pasa como parametro------------------------
                 #------------------Se utiliza el metodo dict para convertir el objeto en un diccionario digerible para mongo----------------------
-                self.bd.personaje.update_one({"_id":ObjectId(idPersonaje)},{"$set":personaje.dict()})
-                resul=self.bd.personaje.find_one({"_id":ObjectId(idPersonaje)},projection={"_id":False})
-                answer["Estatus"]="OK"
-                answer["Message"]="El personaje se ha modificado correctamente"
-                answer['Personaje']=resul
+                
+                try:
+                    self.bd.personaje.update_one({"_id":ObjectId(idPersonaje)},{"$set":personaje.dict()})
+                    resul=self.bd.personaje.find_one({"_id":ObjectId(idPersonaje)},projection={"_id":False})
+                    answer["Estatus"]="OK"
+                    answer["Message"]="El personaje se ha modificado correctamente"
+                    answer['Personaje']=resul
+                except Exception as e:
+                    answer["Estatus"]="Error"
+                    answer["Message"]= f"Error al actualizar el personaje: {str(e)}"
+
         else:
             answer["Estatus"]="Error"
             answer["Message"]="El personaje que se intenta modificar no existe"
@@ -189,31 +229,51 @@ class Connect:
         answer= {"Estatus":"" , "Message":""}
         if len(idPersonaje) != 24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id del usuario no es valido"
-            return answer
-        if self.comprobarExistenciaById(idPersonaje)>0:
+            answer["Message"]="El id del usuario no es valido porque no contiene los 24 caracteres requeridos"
+        elif not self.esHexadecimal(idPersonaje):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido porque no es hexadecimal"
+        elif self.comprobarExistenciaById(idPersonaje)>0:
+            ps = self.consultarPersonajeById(idPersonaje)
+            if ps['estatus'] == "I":
+                answer["Estatus"]="Error"
+                answer["Message"]="No puedes eliminar un personaje ya previamente eliminado"
+                return answer
             state={"estatus":"I"}
-            self.bd.personaje.update_one({"_id":ObjectId(idPersonaje)},{"$set":state})
-            answer["Estatus"]="OK"
-            answer["Message"]="El personaje se ha eliminado correctamente"
+            try:
+                self.bd.personaje.update_one({"_id":ObjectId(idPersonaje)},{"$set":state})
+                answer["Estatus"]="OK"
+                answer["Message"]="El personaje se ha eliminado correctamente"
+            except Exception as e:
+                answer["Estatus"]="Error"
+                answer["Message"]= f"Error al eliminar el personaje: {str(e)}"
         else:
             answer["Estatus"]="Error"
             answer["Message"]="El personaje que se intenta eliminar no existe"
         return answer
     def consultarPersonajes(self):
-        personajes=self.bd.personaje.find({"estatus":"A"})
-        listilla=[]
-        for i in personajes:
-            i["_id"]=str(i["_id"])
-            listilla.append(i)
+        personajes=self.bd.personaje.find()
         answer={"personajes":""}
-        answer["personajes"]=listilla
+        if personajes:
+            listilla=[]
+            for i in personajes:
+                i["_id"]=str(i["_id"])
+                listilla.append(i)
+            answer={"personajes":""}
+            answer["personajes"]=listilla
+        else:
+            answer["personajes"]="No hay registro de personajes en la bd"
         return answer
     def consultarPersonajeById(self,idPersonaje):
         if len(idPersonaje) != 24:
             answer={"Estatus":"" , "Message":""}
             answer["Estatus"]="Error"
-            answer["Message"]="El id del usuario no es valido"
+            answer["Message"]="El id del usuario no es valido porque no contiene los caracteres requeridos"
+            return answer
+        if not self.esHexadecimal(idPersonaje):
+            answer={"Estatus":"" , "Message":""}
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido porque no es hexadecimal"
             return answer
         if self.comprobarExistenciaById(idPersonaje)>0:
 
@@ -247,7 +307,15 @@ class Connect:
         answer= {"Estatus":"" , "Message":""}
         if len(compra.idUsuario) != 24 :
             answer["Estatus"]="Error"
-            answer["Message"]="El id del usuario no es valido"
+            answer["Message"]="El id del usuario no es valido porque no contiene los caracteres requeridos"
+            return answer
+        if not self.esHexadecimal(compra.idUsuario):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido porque no es hexadecimal"
+            return answer
+        if compra.total <0:
+            answer["Estatus"]="Error"
+            answer["Message"]="El total de la compra no puede ser menor a 0"
             return answer
         #-----------------se establece como referencia importante una vaiable de tipo booleano en falso---------------
         band = True
@@ -259,14 +327,29 @@ class Connect:
                 answer["Message"]="El usuario no existe o esta inactivo"
                 return answer
             detail=compra.detalleCompra
+            
+            #-----------------Se utiliza set que funciona como un validador para detectar duplicados-----------
+            seen_personajes = set()
             #------------------Se recorre cada elemento que contiene detail-----------------------
             for character in detail:
                 id_personaje = character.idPersonaje
+                #------------------Se verifica si la cadena contiene los caracteres necesarios para ser considerado un ObjectId
                 if len(id_personaje) != 24 :
                     answer["Estatus"]="Error"
-                    answer["Message"]="El id del personaje no es valido"
+                    answer["Message"]="El id del personaje no es valido porque no contiene los caracteres requeridos"
                     band = False
                     break
+                if not self.esHexadecimal(id_personaje):
+                    answer["Estatus"]="Error"
+                    answer["Message"]="El id del personaje no es valido porque no es hexadecimal"
+                    band = False
+                    break
+                # Verificar que no haya personajes duplicados en la compra
+                if id_personaje in seen_personajes:
+                    answer["Estatus"] = "Error"
+                    answer["Message"] = "No puede comprar personajes duplicados en una misma compra"
+                    return answer
+                seen_personajes.add(id_personaje)
                 #------------------Se comprueba si el personaje existe---------------------------------
                 if self.comprobarExistenciaById(id_personaje)>0:
                     #------------------Se comprueba si el personaje ya existe en el almacen del usuario------------------
@@ -299,8 +382,13 @@ class Connect:
                 #------------------Se comprueba si el total de la compra es igual o mayor al subtotal------------------
                 if compra.total == round(compra.subtotal,2) or compra.total > round(compra.subtotal,2):
                     #------------------Se inserta la compra en la base de datos y se trae el resultado------------------
-                    result = self.bd.compra.insert_one(compra.dict())
-                    
+                    try:
+                        result = self.bd.compra.insert_one(compra.dict())
+                    except Exception as e:
+                        answer["Estatus"]="Error"
+                        answer["Message"]= f"Error al insertar la compra en la base de datos {str(e)}"
+                        return answer
+
                     detallito=compra.detalleCompra
                     for obj in detallito:
                         id_pers = obj.idPersonaje
@@ -330,30 +418,34 @@ class Connect:
         answer= {"Estatus":"" , "Message":""}
         #------------------Se consultan las compras------------------
         res=self.bd.compra.find()
-        answer["Estatus"]="OK"
-        answer["Message"]="Listado de compras"
-        listilla=[]
-        #------------------Se recorre cada compra y se agrega el nombre del usuario y el nombre del personaje------------------
-        for i in res:
-            i["_id"]=str(i["_id"])
-            user = self.constultaUserById(i["idUsuario"])
-            i["nombreUsuario"]=user["nombre"]
-            detalle_tmp=[]
-            detalles=i["detalleCompra"]
-            for j in detalles:
-                j["idPersonaje"]=str(j["idPersonaje"])
-                #print(j['idPersonaje'])
-                nmb = self.consultarNombrePersonaje(j["idPersonaje"])
-                #-----------------Se agrega un atributo al objeto tal que asi, para guardar el nombre del personaje-----------------
-                #-----------------Lo mismo se hizo en la parte de arriba con el nombre del usuario----------------------
-                j["nombrePersonaje"]= nmb['nombre']
-                #-----------------El metodo append se usa para agregar, en este caso como se hizo un cambio la variable a guardar es j-----------------------
-                #-----------------y donde se va a guardar es detalle_tmp, es decir que lo que tenga detalle_tmp se le va agregar el objeto j--------------------
-                detalle_tmp.append(j)
-            i["detalleCompra"]=detalle_tmp
-            #------------------Aqui se hace lo mismo pero con el objeto i, se va guardando en la lista ya el objeto modificado
-            listilla.append(i)
-        answer["Compras"]=listilla
+        if res:
+            answer["Estatus"]="OK"
+            answer["Message"]="Listado de compras"
+            listilla=[]
+            #------------------Se recorre cada compra y se agrega el nombre del usuario y el nombre del personaje------------------
+            for i in res:
+                i["_id"]=str(i["_id"])
+                user = self.constultaUserById(i["idUsuario"])
+                i["nombreUsuario"]=user["nombre"]
+                detalle_tmp=[]
+                detalles=i["detalleCompra"]
+                for j in detalles:
+                    j["idPersonaje"]=str(j["idPersonaje"])
+                    #print(j['idPersonaje'])
+                    nmb = self.consultarNombrePersonaje(j["idPersonaje"])
+                    #-----------------Se agrega un atributo al objeto tal que asi, para guardar el nombre del personaje-----------------
+                    #-----------------Lo mismo se hizo en la parte de arriba con el nombre del usuario----------------------
+                    j["nombrePersonaje"]= nmb['nombre']
+                    #-----------------El metodo append se usa para agregar, en este caso como se hizo un cambio la variable a guardar es j-----------------------
+                    #-----------------y donde se va a guardar es detalle_tmp, es decir que lo que tenga detalle_tmp se le va agregar el objeto j--------------------
+                    detalle_tmp.append(j)
+                i["detalleCompra"]=detalle_tmp
+                #------------------Aqui se hace lo mismo pero con el objeto i, se va guardando en la lista ya el objeto modificado
+                listilla.append(i)
+            answer["Compras"]=listilla
+        else:
+            answer["Estatus"]="Error"
+            answer["Message"]="No hay compras registradas"
         return answer
     def consultarNombrePersonaje(self,idPersonaje):
         res=self.bd.personaje.find_one({"_id":ObjectId(idPersonaje)},projection={"_id":False})
@@ -363,6 +455,8 @@ class Connect:
         #answer={"Estatus":"" , "Message":""}
         if len(idCompra) != 24:
             return "Error: El id de la compra no es valido, no contiene 24 caracteres"
+        if not self.esHexadecimal(idCompra):
+            return "Error: El id de la compra no es valido, no es hexadecimal"
         res=self.bd.compra.find_one({"_id":ObjectId(idCompra)})
         if res:
             print(res['_id'])
@@ -385,23 +479,43 @@ class Connect:
         participantes=partida.participantes
         flag=True
         for participant in participantes:
+            if participant.ganador != False:
+                flag=False
+                answer["Estatus"]="Error"
+                answer["Message"]="No se puede crear la partida, hay un participante que ya es ganador"
+                break
             if len(participant.usuario.idUsuario) != 24:
                 flag=False
                 answer["Estatus"]="Error"
-                answer["Message"]="El id del usuario no es valido"
+                answer["Message"]="El id del usuario no es valido porque no contiene los caracteres requeridos"
                 break
-            if len(participant.usuario.idPersonaje) != 24:
+            elif not self.esHexadecimal(participant.usuario.idUsuario):
                 flag=False
                 answer["Estatus"]="Error"
-                answer["Message"]="El id del personaje no es valido"
+                answer["Message"]="El id del usuario no es valido porque no es hexadecimal"
                 break
-            #------------------Comprobar si existe el usuario que se desea agregar a la partida------------------------
-            if self.comprobarUserById(participant.usuario.idUsuario)>0:
+            elif len(participant.usuario.idPersonaje) != 24:
+                flag=False
+                answer["Estatus"]="Error"
+                answer["Message"]="El id del personaje no es valido porque no contiene los caracteres requeridos"
+                break
+            elif not self.esHexadecimal(participant.usuario.idPersonaje):
+                flag=False
+                answer["Estatus"]="Error"
+                answer["Message"]="El id del personaje no es valido porque no es hexadecimal"
+                break
+                #------------------Comprobar si existe el usuario que se desea agregar a la partida------------------------
+            elif self.comprobarUserById(participant.usuario.idUsuario)>0:
                 us = self.constultaUserById(participant.usuario.idUsuario)
                 if us["estatus"] == "I":
                     flag=False
                     answer["Estatus"]="Error"
                     answer["Message"]="El usuario "+us["nombre"]+" esta inactivo"
+                    break
+                if us["estatus"] == "P":
+                    flag=False
+                    answer["Estatus"]="Error"
+                    answer["Message"]="No se puede crear la partida ya que el usuario " + us["nombre"]+" esta en otra partida"
                     break
                 if self.comprobarExistenciaById(participant.usuario.idPersonaje)>0:
                     if self.existeEnAlmacen(participant.usuario.idUsuario,participant.usuario.idPersonaje):
@@ -434,14 +548,22 @@ class Connect:
                     answer["Message"]="Se han agregado mas participantes de los establecidos"
                     return answer
                 if  self.verificarParticipantes(participantes) == False:
-
-                    for participant in participantes:
-                        estate={"estatus":"P"}
-                        self.bd.usuario.update_one({"_id":ObjectId(participant.usuario.idUsuario)},{"$set":estate})
                     #------------------Se inserta una partida en la base de datos------------------
-                    self.bd.partida.insert_one(partida.dict())
-                    answer["Estatus"]="OK"
-                    answer["Message"]="Partida creada"
+                    try:
+                        self.bd.partida.insert_one(partida.dict())
+                        for participant in participantes:
+                            estate={"estatus":"P"}
+                            try:
+                                self.bd.usuario.update_one({"_id":ObjectId(participant.usuario.idUsuario)},{"$set":estate})
+                            except Exception as e:
+                                answer["Estatus"]="Error"
+                                answer["Message"]="No se pudo actualizar el estatus del usuario"
+                                return answer
+                        answer["Estatus"]="OK"
+                        answer["Message"]="Partida creada"
+                    except Exception as e:
+                        answer["Estatus"]="Error"
+                        answer["Message"]= f"Error al crear la partida {str(e)}"
                 else:
                     answer["Estatus"]="Error"
                     answer["Message"]="No se pueden agregar dos usuarios iguales a la misma partida"
@@ -466,14 +588,18 @@ class Connect:
         answer={"Estatus":"" , "Message":""}
         if len(idPartida) != 24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id de la partida no es valido"
-            return answer
-        if len(idUsuarioGanador) != 24:
+            answer["Message"]="El id de la partida no es valido porque no contiene los caracteres requeridos"
+        elif len(idUsuarioGanador) != 24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id del usuario ganador no es valido"
-            return answer
-        #------------------Comprobar si la partida existe------------------------
-        if self.encontrarPartida(idPartida)>0:
+            answer["Message"]="El id del usuario ganador no es valido porque no contiene los caracteres requeridos"
+        elif not self.esHexadecimal(idPartida):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id de la partida no es valido porque no esta en un formato hexadecimal"
+        elif not self.esHexadecimal(idUsuarioGanador):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario ganador no es valido porque no esta en un formato hexadecimal"
+            #------------------Comprobar si la partida existe------------------------
+        elif self.encontrarPartida(idPartida)>0:
             if self.comprobarUserById(idUsuarioGanador)>0:
                 part=self.bd.partida.find_one({"_id":ObjectId(idPartida)})
                 
@@ -521,13 +647,22 @@ class Connect:
         flag =False
         if len(idPartida) != 24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id de la partida no es valido"
+            answer["Message"]="El id de la partida no es valido porque no contiene los caracteres requeridos para ser objectid"
         elif len(participant.usuario.idUsuario) !=24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id del usuario no es valido"
+            answer["Message"]="El id del usuario no es valido porque no contiene los caracteres requeridos para ser objectid"
         elif len(participant.usuario.idPersonaje) !=24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id del personaje no es valido"
+            answer["Message"]="El id del personaje no es valido porque no contiene los caracteres requeridos para ser objectid"
+        elif not self.esHexadecimal(idPartida):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id de la partida no es valido porque no esta en un formato hexadecimal"
+        elif not self.esHexadecimal(participant.usuario.idUsuario):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del usuario no es valido porque no esta en un formato hexadecimal"
+        elif not self.esHexadecimal(participant.usuario.idPersonaje):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id del personaje no es valido porque no esta en un formato hexadecimal"
         else:
             if self.encontrarPartida(idPartida)>0:
                 if self.comprobarUserById(participant.usuario.idUsuario)>0:
@@ -610,7 +745,10 @@ class Connect:
         answer={"Estatus":"" , "Message":""}
         if len(idPartida) != 24:
             answer["Estatus"]="Error"
-            answer["Message"]="El id de la partida no es valido"
+            answer["Message"]="El id de la partida no es valido porque no contiene los caracteres requeridos"
+        elif not self.esHexadecimal(idPartida):
+            answer["Estatus"]="Error"
+            answer["Message"]="El id de la partida no es valido porque no esta en un formato hexadecimal"
         else:
             if self.encontrarPartida(idPartida)>0:
                 partida=self.bd.partida.find_one({"_id":ObjectId(idPartida)})
@@ -633,3 +771,9 @@ class Connect:
                 answer["Estatus"]="Error"
                 answer["Message"]="Partida no encontrada"
         return answer
+    def esHexadecimal(self, cadena):
+        try:
+            int(cadena, 16)
+        except ValueError:
+            return False
+        return True

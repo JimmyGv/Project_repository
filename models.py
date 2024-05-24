@@ -17,7 +17,7 @@ class Compra (BaseModel):
     cvc:str
     anioExpiracion:int=Field(...,gt=2024)
     mesExpiracion:int=Field(...,gt=0)
-    subtotal:float
+    subtotal:float=Field(...,ge=0)
     total:float=Field(...,gt=0)
     fechaCompra:datetime=Field(default=datetime.today())
     idUsuario:str
@@ -41,12 +41,13 @@ class Partida (BaseModel):
     participantes:list[Participantes]
 class PersonajeInsertar (BaseModel):
     nombre:str
-    precio: float
+    precio: float=Field(...,gt=0)
     imagen:str
     estatus:str=Field(default="A")
 class PersonajeActualizar (BaseModel):
     nombre:str
-    precio: float=Field(...,ge=0)
+    precio: float=Field(...,gt=0)
     imagen:str
+    estatus:str=Field(default="A")
 
 
