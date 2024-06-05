@@ -16,6 +16,10 @@ class Connect:
         #------------------comprobar si el usuario ya existe-----------------------
         if self.comprobarUser(usuario.correo) == 0:
             #------------------Insertar el usuario en la base de datos-----------------------
+            if usuario.estatus == 'P' or usuario.estatus == 'I':
+                answer["Estatus"]='Error'
+                answer["Message"]='No se puede crear un usuario con este estatus'
+                return answer
             try:
                 self.bd.usuario.insert_one(usuario.dict())
                 answer["Estatus"]="OK"
@@ -41,6 +45,14 @@ class Connect:
             answer["Message"]="El id del usuario no es valido, no es hexadecimal"
             #------------------comprobar si el usuario existe-----------------------
         elif self.comprobarUserById(idUser)>0:
+            usr = self.constultaUserById(idUser)
+            if 'estatus' in usr:
+                if usr['estatus'] == 'I':
+                    answer["Estatus"]="Error"
+                    answer["Message"]= "No se puede actualizar a un usuario inactivo"
+                    return answer
+            else:
+                return usr
             #------------------Crear una variable con un nuevo estatus-----------------------
             state = {"nombre":nombre, "contrasena":contrasena}
             #------------------Actualizar el usuario en la base de datos con su nuevo estatus-----------------------
@@ -71,9 +83,9 @@ class Connect:
         if (nombre_usuario != None):
             #------------------Obtener el usuario-----------------------
             usuario = self.bd.usuario.find_one({"correo":correo,"contrasena":contrasena},projection={"nombre":True,"correo":True,"estatus":True,"_id":False})
-            if usuario['estatus']=="I":
+            if usuario['estatus']=="I" or usuario['estatus'] == "P":
                 answer["Estatus"]="Error"
-                answer["Message"]="El usuario esta inactivo, pida ayuda a soporte tecnico al correo tmp_jgonzalez@accitesz.com para volver a activar su cuenta"
+                answer["Message"]="El usuario tiene un error, pida ayuda a soporte tecnico al correo tmp_jgonzalez@accitesz.com para volver a activar su cuenta"
             else:
                 answer["Estatus"]= "OK"
                 answer["Message"]="Usuario encontrado"
@@ -326,6 +338,10 @@ class Connect:
                 answer["Estatus"]="Error"
                 answer["Message"]="El usuario no existe o esta inactivo"
                 return answer
+            elif us['estatus']=="P" :
+                answer["Estatus"]="Error"
+                answer["Message"]="El usuario esta jugando, no puede realizar la compra"
+                return answer
             detail=compra.detalleCompra
             
             #-----------------Se utiliza set que funciona como un validador para detectar duplicados-----------
@@ -380,6 +396,8 @@ class Connect:
                     break
             if band:
                 #------------------Se comprueba si el total de la compra es igual o mayor al subtotal------------------
+                compra.total = round(compra.subtotal,2)
+                compra.subtotal = round(compra.subtotal,2)
                 if compra.total == round(compra.subtotal,2) or compra.total > round(compra.subtotal,2):
                     #------------------Se inserta la compra en la base de datos y se trae el resultado------------------
                     try:
@@ -586,6 +604,7 @@ class Connect:
         return count
     def finalizarPartida(self, idPartida, idUsuarioGanador):
         answer={"Estatus":"" , "Message":""}
+        cent =False
         if len(idPartida) != 24:
             answer["Estatus"]="Error"
             answer["Message"]="El id de la partida no es valido porque no contiene los caracteres requeridos"
@@ -608,27 +627,39 @@ class Connect:
                     answer["Message"]="La partida ya ha sido finalizada"
                 else:
 
-                    for usuario in part['participantes']:
-                        usuario['estatus']="Played"
-                        newSatate={"estatus":"A"}
-                        obj = usuario['usuario']
-                        self.bd.usuario.update_one({"_id":ObjectId(obj["idUsuario"])},{"$set":newSatate})
-                        obj['idUsuario']=str(obj['idUsuario'])
-                        if obj['idUsuario']== idUsuarioGanador:
-                            usuario['ganador']=True
+                    for objUs in part['participantes']:
+                        if objUs['usuario']['idUsuario'] == idUsuarioGanador:
+                            print(objUs['usuario']['idUsuario'])
+                            cent =True
+                            break
+                    
+                    if cent:
+                        for usuario in part['participantes']:
+                            usuario['estatus']="Played"
+                            newState={"estatus":"A"}
+                            obj = usuario['usuario']
+                            self.bd.usuario.update_one({"_id":ObjectId(obj["idUsuario"])},{"$set":newState})
+                            obj['idUsuario']=str(obj['idUsuario'])
+                            if obj['idUsuario']== idUsuarioGanador:
+                                usuario['ganador']=True
+                            else:
+                                usuario['ganador']=False
 
-                    state={"estatus":"T", "horaFin":datetime.now().time()}
-                    hora=datetime.strptime(part['horaInicio'], '%H:%M:%S.%f')
-                    state["duracion"]=self.calcularDuracion(state["horaFin"], (hora.time()))
-                    state["horaFin"]=str(state['horaFin'])
-                    state['fechaTerminacion']= str(date.today())
-                    #part['_id']=str(part['_id'])
-                    #answer['partida_actulizada']=part
-                    #answer['valores a agregar']=state
-                    self.bd.partida.update_one({"_id":ObjectId(idPartida)},{"$set":part})
-                    self.bd.partida.update_one({"_id":ObjectId(idPartida)},{"$set":state})
-                    answer["Estatus"]='OK'
-                    answer["Message"]="Partida finalizada con exito"
+                        state={"estatus":"T", "horaFin":datetime.now().time()}
+                        hora=datetime.strptime(part['horaInicio'], '%H:%M:%S.%f')
+                        state["duracion"]=self.calcularDuracion(state["horaFin"], (hora.time()))
+                        state["horaFin"]=str(state['horaFin'])
+                        state['fechaTerminacion']= str(date.today())
+                        #part['_id']=str(part['_id'])
+                        #answer['partida_actulizada']=part
+                        #answer['valores a agregar']=state
+                        self.bd.partida.update_one({"_id":ObjectId(idPartida)},{"$set":part})
+                        self.bd.partida.update_one({"_id":ObjectId(idPartida)},{"$set":state})
+                        answer["Estatus"]='OK'
+                        answer["Message"]="Partida finalizada con exito"
+                    else:
+                        answer["Estatus"]='Error'
+                        answer["Message"]='El usuario ganador no esta jugando en la partida'
             else:
                 answer["Estatus"]='Error'
                 answer["Message"]="El usuario ganador no existe"
